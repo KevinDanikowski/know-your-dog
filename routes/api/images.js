@@ -23,14 +23,9 @@ var upload = multer({ storage: storage }).single("image");
 
 router.post("/upload", (req, res) => {
   upload(req, res, function(err) {
-    console.log("*****UPLOAD******");
-    console.log("Request ---", req.body);
-    console.log("Request file ---", req.file);
     if (err) {
       return res.send("Error Uploading: " + err);
     }
-    console.log("file uploaded to server");
-    console.log(req.file.path);
 
     const cloudinary = require("cloudinary").v2;
     cloudinary.config({
@@ -47,14 +42,11 @@ router.post("/upload", (req, res) => {
       { public_id: `blog/${uniqueFilename}`, tags: `blog` }, // directory and tags are optional
       function(err, image) {
         if (err) return res.send(err);
-        console.log("file uploaded to Cloudinary");
         // remove file from server
         const fs = require("fs");
         fs.unlinkSync(path);
         // return image details
         res.json(image);
-        console.log("IMAGE");
-        console.log(image.url);
       }
     );
   });

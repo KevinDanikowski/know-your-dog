@@ -3,19 +3,14 @@ const mongoose = require("mongoose");
 const DogSchema = new mongoose.Schema(
   {
     image: {
-      type: String,
-      required: true
+      type: String
     },
     description: {
-      type: String,
-      required: true
-    },
-    label: {
-      type: Array
+      type: [String]
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "users",
       required: true
     }
   },
