@@ -1,2 +1,7 @@
 /node_modules
 package-lock.json
+/config/keys.js
+know-your-dog-e5cc156131b4.json
+/client/node_modules
+/client/.gitignore
+/client/package-lock.json

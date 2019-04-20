@@ -12,6 +12,10 @@ const Dog = require("../../models/Dog");
 
 const dogBreed = require("../../DogBreeds");
 
+const visionKey = require("../../config/keys").visionAPI;
+
+const visionAuth = require("../../config/keys").visionAuth;
+
 // @route  /api/dogs/test
 // @desc   Tests user route
 // @access PUBLIC
@@ -71,16 +75,15 @@ router.post(
   (req, res) => {
     // pulls image from post request to server and sends post request to google API
     const image = req.body.imageUrl;
-    var predictions;
+    var predictions = [];
     axios({
       method: "post",
       url: "https://vision.googleapis.com/v1/images:annotate",
       params: {
-        key: "AIzaSyD3OvnQIWVnRuT3_xD-hto1xk4kn74G3xs"
+        key: visionKey
       },
       headers: {
-        Authorization:
-          "Bearer ya29.c.El_sBuPIX2XUeALRuqBns5HHTZ0ZX6xlQZc2wtQiPZZaoeHeFIjSeu2sZ4Xd1Chwb8VaNn7KoZ_gGbxF9A7mNLOHiIBFl-SxoYe6_vxS2vP93y9r6XOrA9t7lghK1eTHiA"
+        Authorization: visionAuth
       },
       data: {
         requests: [
@@ -104,7 +107,7 @@ router.post(
         //console.log("response.body", response.body);
         // console.log("****** WEB-DETECTION  DOGS ROUTER *****");
 
-        console.log(response.data.responses[0].webDetection.webEntities);
+        console.log(response.data);
 
         var webEntities = response.data.responses[0].webDetection.webEntities;
 
@@ -121,6 +124,12 @@ router.post(
         newDog.save().then(dog => {
           console.log("dog", dog);
           res.status(200).json({ dog: dog });
+        });
+
+        res.json({
+          id: req.user.id,
+          image: req.body.imageUrl,
+          description: predictions
         });
 
         //res.status(200).json({ dog: "dog" });
@@ -208,11 +217,6 @@ router.post(
       .catch(function(error) {
         console.log(error);
       });
-    res.json({
-      id: req.user.id,
-      image: req.body.imageUrl,
-      description: "predictions"
-    });
   }
 );
 
