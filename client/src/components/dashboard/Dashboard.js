@@ -18,18 +18,12 @@ class Dashboard extends Component {
   }
 
   fileUploadHandler = event => {
-    console.log("*********************");
-    console.log(this.state.selectedFile);
-    console.log("*********************");
     const formData = new FormData();
     formData.append("image", this.state.selectedFile);
-
     this.props.uploadFile(formData, this.props.history);
   };
 
   fileSelectedHandler = event => {
-    console.log(event.target.files[0]);
-    console.log("Upload image to endpoint");
     this.setState({
       selectedFile: event.target.files[0]
     });
@@ -40,15 +34,15 @@ class Dashboard extends Component {
     let dashboardContent;
 
     // user logged in but has no images
-    dashboardContent = (
-      <div>
-        <p className="lead text-muted">Welcome {user.name}</p>
-        <p>You have not any images yet</p>
-        <Link to="/upload" className="btn btn-lg btn-info">
-          Upload Image
-        </Link>
-      </div>
-    );
+    // dashboardContent = (
+    //   <div>
+    //     <p className="lead text-muted">Welcome {user.name}</p>
+    //     <p>You have not any images yet</p>
+    //     <Link to="/upload" className="btn btn-lg btn-info">
+    //       Upload Image
+    //     </Link>
+    //   </div>
+    // );
 
     return (
       <div id="container">

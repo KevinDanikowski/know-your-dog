@@ -8,13 +8,6 @@
   pointer-events: none;
 }
 
-.fix-to-bottom {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 2.5rem;
-}
-
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

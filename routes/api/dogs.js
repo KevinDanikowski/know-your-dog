@@ -21,39 +21,26 @@ const visionAuth = require("../../config/keys").visionAuth;
 // @access PUBLIC
 router.get("/test", (req, res) => res.json({ msg: "Dogs works!" }));
 
-// @route  /api/dogs/save-doginfo
-// @desc   Stores dog info to database
-// @access PRIVATE
-router.post("/save-doginfo", (req, res) => {
-  const newDog = new Dog({
-    image: req.body.image,
-    breed: req.body.breed,
-    user: req.user.id
-  });
-
-  newDog.save().then(dog => res.json(dog));
-});
-
-// @route  /api/dogs/all
+// @route  /api/dogs/
 // @desc   Get all dogs
 // @access PRIVATE
-router.get("/all", (req, res) => {
+router.get("/", (req, res) => {
   Dog.find()
-    .then(handle404)
-    .then(dogs => {
-      const dogsObjects = dogs
-        .map(dog => dog.toObject())
-        .sort((a, b) => (a.priority > b.priority ? -1 : 1));
-      const userDogs = [];
-      dogsObjects.forEach(dog => {
-        if (dog.owner.equals(req.user.id)) {
-          userDogs.push(dog);
-        }
-      });
-      return userDogs;
-    })
-    .then(dogs => res.status(200).json({ dogs: dogs }))
-    .catch(err => handle(err, res));
+    // .then(handle404)
+    // .then(dogs => {
+    //   const dogsObjects = dogs
+    //     .map(dog => dog.toObject())
+    //     .sort((a, b) => (a.priority > b.priority ? -1 : 1));
+    //   const userDogs = [];
+    //   dogsObjects.forEach(dog => {
+    //     if (dog.owner.equals(req.user.id)) {
+    //       userDogs.push(dog);
+    //     }
+    //   });
+    //   return userDogs;
+    // })
+    .then(dogs => res.status(200).json(dogs))
+    .catch(err => res.status(404));
 });
 
 // @route  /api/dogs/dog/:id
@@ -61,10 +48,10 @@ router.get("/all", (req, res) => {
 // @access PRIVATE
 router.get("/dog/:id", (req, res) => {
   Dog.findById(req.params.id)
-    .then(handle404)
-    .then(dog => res.status(200).json({ dog: dog.toObject() }))
-    .catch(err => handle(err, res));
+    .then(dog => res.json(dog))
+    .catch(err => res.status(404));
 });
+//dog => res.status(200).json({ dog: dog })  res.status(200).json(res)
 
 // @route  /api/dogs/
 // @desc   Post dog info
@@ -96,7 +83,7 @@ router.post(
             features: [
               {
                 type: "WEB_DETECTION",
-                maxResults: 5
+                maxResults: 10
               }
             ]
           }
@@ -104,20 +91,110 @@ router.post(
       }
     })
       .then(function(response) {
-        //console.log("response.body", response.body);
-        // console.log("****** WEB-DETECTION  DOGS ROUTER *****");
-
-        console.log(response.data);
-
         var webEntities = response.data.responses[0].webDetection.webEntities;
-
+        console.log(webEntities);
         predictions = webEntities.map(entity => {
           return entity.description;
         });
 
+        const descripProbMap = webEntities.map(entity => ({
+          description: entity.description,
+          probability: entity.score
+        }));
+        console.log("descripProbMap", descripProbMap);
+
+        //res.status(200).json({ dog: "dog" });
+
+        //res.status(200).json({ dog: newDog })
+
+        // Check if array of label objects contains any descriptions with the value dog
+        const isDog = function() {
+          if (
+            descripProbMap.some(
+              entity => entity.description.toLowerCase() === "dog" || "puppy"
+            )
+          ) {
+            return descripProbMap;
+          } else {
+            predictions = "Not a dog!";
+            return { description: "Not a dog!" };
+          }
+        };
+        // console.log(" **********");
+        // console.log(" ***** IS DOG *****", (abc = isDog()));
+
+        // maps through array of known dog breeds and changes all to lower case to match
+        // vision api response
+        const dogBreedLowerCase = dogBreed.map(breed => breed.toLowerCase());
+        // function to check if description value from google vision is a known
+        // dog breed
+        const breedChecker = function(label) {
+          if (
+            dogBreedLowerCase.some(
+              breed => breed === label.description.toLowerCase()
+            )
+          ) {
+            return label;
+          }
+        };
+        // maps through array of label objects and return key pairs
+        // where the key value is a known dog breed
+        const breedCheckerMap = function() {
+          if (isDog().description !== "Not a dog!") {
+            return isDog().map(label => breedChecker(label));
+          }
+        };
+        // maps through array of label objects and removes undefined objects
+        const breedCheckerUndefinedFilter = function() {
+          if (isDog().description !== "Not a dog!") {
+            return breedCheckerMap().filter(breed => breed !== undefined);
+          } else {
+            return isDog();
+          }
+        };
+        // maps through label keys and values and capitalizes all first letters
+        const capitalizer = function(breed) {
+          return breed
+            .toLowerCase()
+            .split(" ")
+            .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+            .join(" ");
+        };
+        // maps through processed array of label objects and values to be added to new dog
+        const dogDataDisplayReady = function() {
+          if (breedCheckerUndefinedFilter().length === 0) {
+            return { description: "Unknown Dog" };
+          } else if (
+            breedCheckerUndefinedFilter().description === "Not a dog!"
+          ) {
+            return breedCheckerUndefinedFilter();
+          } else {
+            const capitalizedBreed = breedCheckerUndefinedFilter().map(
+              breed => ({
+                description: capitalizer(breed.description),
+                probability: breed.probability * 100
+              })
+            );
+            return capitalizedBreed;
+          }
+        };
+        console.log("******** response4 **********", dogDataDisplayReady());
+        const test = dogDataDisplayReady();
+
+        var breeds = test.map(entity => {
+          return entity.description;
+        });
+
+        var probabilities = test.map(entity => {
+          return entity.probability;
+        });
+        console.log("****** BREED *****", breeds);
+        console.log("****** PROBABILITY *****", probabilities);
+
         const newDog = new Dog({
           image: req.body.imageUrl,
-          description: predictions,
+          breed: breeds,
+          probability: probabilities,
           owner: req.user.id
         });
 
@@ -129,90 +206,9 @@ router.post(
         res.json({
           id: req.user.id,
           image: req.body.imageUrl,
-          description: predictions
+          breed: breeds,
+          probability: probabilities
         });
-
-        //res.status(200).json({ dog: "dog" });
-
-        //res.status(200).json({ dog: newDog })
-        // const descripProbMap = labels.map(label => ({
-        //   description: label.description,
-        //   probability: label.score
-        // }));
-        //console.log("descripProbMap", descripProbMap);
-        // Check if array of label objects contains any descriptions with the value dog
-        // const isDog = function() {
-        //   if (
-        //     descripProbMap.some(label => label.description.toLowerCase() === "dog")
-        //   ) {
-        //     return descripProbMap;
-        //   } else {
-        //     return { description: "Not a dog!" };
-        //   }
-        // };
-        // maps through array of known dog breeds and changes all to lower case to match
-        // vision api response
-        //const dogBreedLowerCase = dogBreed.map(breed => breed.toLowerCase());
-        // function to check if description value from google vision is a known
-        // dog breed
-        // const breedChecker = function(label) {
-        //   if (
-        //     dogBreedLowerCase.some(
-        //       breed => breed === label.description.toLowerCase()
-        //     )
-        //   ) {
-        //     return label;
-        //   }
-        // };
-        // maps through array of label objects and return key pairs
-        // where the key value is a known dog breed
-        // const breedCheckerMap = function() {
-        //   if (isDog().description !== "Not a dog!") {
-        //     return isDog().map(label => breedChecker(label));
-        //   }
-        // };
-        // maps through array of label objects and removes undefined objects
-        // const breedCheckerUndefinedFilter = function() {
-        //   if (isDog().description !== "Not a dog!") {
-        //     return breedCheckerMap().filter(breed => breed !== undefined);
-        //   } else {
-        //     return isDog();
-        //   }
-        // };
-        // maps through label keys and values and capitalizes all first letters
-        // const capitalizer = function(breed) {
-        //   return breed
-        //     .toLowerCase()
-        //     .split(" ")
-        //     .map(s => s.charAt(0).toUpperCase() + s.substring(1))
-        //     .join(" ");
-        // };
-        // maps through processed array of label objects and values to be added to new dog
-        // const dogDataDisplayReady = function() {
-        //   if (breedCheckerUndefinedFilter().length === 0) {
-        //     return { description: "Unknown Dog" };
-        //   } else if (breedCheckerUndefinedFilter().description === "Not a dog!") {
-        //     return breedCheckerUndefinedFilter();
-        //   } else {
-        //     const capitalizedBreed = breedCheckerUndefinedFilter().map(breed => ({
-        //       description: capitalizer(breed.description),
-        //       probability: breed.probability * 100
-        //     }));
-        //     return capitalizedBreed;
-        //   }
-        // };
-        // console.log("response4", dogDataDisplayReady());
-        // set owner of new example to be current user
-        // req.body.dogs.owner = req.user.id;
-        // req.body.dogs.label = dogDataDisplayReady();
-        // Dog.create(req.body.dogs)
-        //   // respond to succesful `create` with status 201 and JSON of new "dog"
-        //   .then(dog => {
-        //     res.status(201).json({ dogs: dog.toObject() });
-        //   })
-        // if an error occurs, pass it off to our error handler
-        // the error handler needs the error message and the `res` object so that it
-        // can send an error message back to the client
       })
       .catch(function(error) {
         console.log(error);

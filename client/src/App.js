@@ -8,6 +8,8 @@ import Landing from "./components/layouts/Landing";
 import Footer from "./components/layouts/Footer";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
+import Dogs from "./components/history/Dogs";
+import DogItem from "./components/history/DogItem";
 
 import Dashboard from "./components/dashboard/Dashboard";
 
@@ -16,7 +18,6 @@ import "./App.css";
 import { Provider } from "react-redux";
 import store from "./store";
 import setAuthToken from "./utils/setAuthToken";
-import { clearCurrentProfile } from "./actions/profileActions";
 
 //private route
 import PrivateRoute from "./components/common/PrivateRoute";
@@ -36,7 +37,6 @@ if (localStorage.jwtToken) {
   if (decoded.exp < currentTime) {
     // Logout user
     store.dispatch(logoutUser());
-    store.dispatch(clearCurrentProfile());
     // Redirect to login
     window.location.href = "/login";
   }
@@ -53,6 +53,7 @@ class App extends Component {
             <div className="container">
               <Route exact path="/register" component={Register} />
               <Route exact path="/login" component={Login} />
+              <Route exact path="/dogs" component={Dogs} />
             </div>
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />

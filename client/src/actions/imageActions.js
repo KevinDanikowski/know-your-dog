@@ -1,4 +1,4 @@
-import { PREDICTIONS } from "./types";
+import { GET_DOG, GET_DOGS, IMAGE_LOADING } from "./types";
 import axios from "axios";
 
 export const uploadFile = (formData, history) => dispatch => {
@@ -8,48 +8,9 @@ export const uploadFile = (formData, history) => dispatch => {
       console.log(res.data.url);
       axios
         .post("/api/dogs/dogs", { imageUrl: res.data.url })
-        // const responseGoogleVision = axios({
-        //   method: "post",
-        //   url: "https://vision.googleapis.com/v1/images:annotate",
-        //   params: {
-        //     key: "AIzaSyD3OvnQIWVnRuT3_xD-hto1xk4kn74G3xs"
-        //   },
-        //   headers: {
-        //     Authorization:
-        //       "Bearer ya29.c.El_sBjRK0MdngfNfOPMyv6MQGmag3CtEp5BRieeO3WC1BeKCFvURIQSUPMjP0EDK39j756HvyXSJ9zbQ49xgMQfgBc3GeDfBkoZP6Nx45i8h8wm_JkIOIXycMvKWZSHFUg"
-        //   },
-        //   data: {
-        //     requests: [
-        //       {
-        //         image: {
-        //           source: {
-        //             imageUri: res.data.url
-        //           }
-        //         },
-        //         features: [
-        //           {
-        //             type: "WEB_DETECTION",
-        //             maxResults: 5
-        //           }
-        //         ]
-        //       }
-        //     ]
-        //   }
-        // })
         .then(function(response) {
-          // console.log("****** WEB-DETECTION *****");
-          // console.log(response.data.responses[0].webDetection.webEntities);
-
-          // var webEntities = response.data.responses[0].webDetection.webEntities;
-
-          // var predictions = webEntities.map(entity => {
-          //   return entity.description;
-          // });
-          console.log(" ******** IMAGE ACTIONS *********");
-          console.log("response.data.description", response);
-
           dispatch({
-            type: PREDICTIONS,
+            type: GET_DOG,
             payload: response.data
           });
         })
@@ -59,4 +20,31 @@ export const uploadFile = (formData, history) => dispatch => {
     })
 
     .catch(err => console.log(err));
+};
+
+// Get all dogs
+export const getDogs = () => dispatch => {
+  dispatch(setDogsLoading());
+  console.log("getDogs");
+  axios
+    .get("/api/dogs/")
+    .then(res =>
+      dispatch({
+        type: GET_DOGS,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch({
+        type: GET_DOGS,
+        payload: null
+      })
+    );
+};
+
+// Profile loading
+export const setDogsLoading = () => {
+  return {
+    type: IMAGE_LOADING
+  };
 };

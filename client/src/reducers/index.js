@@ -6,5 +6,5 @@ import fileReducer from "./fileReducer";
 export default combineReducers({
   auth: authReducer,
   errors: errorReducers,
-  files: fileReducer
+  dog: fileReducer
 });

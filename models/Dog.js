@@ -5,8 +5,11 @@ const DogSchema = new mongoose.Schema(
     image: {
       type: String
     },
-    description: {
+    breed: {
       type: [String]
+    },
+    probability: {
+      type: Array
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
