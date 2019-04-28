@@ -5,9 +5,9 @@ export const uploadFile = (formData, history) => dispatch => {
   axios
     .post("/api/images/upload", formData)
     .then(res => {
-      console.log(res.data.url);
+      console.log("***response******", res.data.file);
       axios
-        .post("/api/dogs/dogs", { imageUrl: res.data.url })
+        .post("/api/dogs/dogs", { imageUrl: res.data.file })
         .then(function(response) {
           dispatch({
             type: GET_DOG,

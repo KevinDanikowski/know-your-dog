@@ -3,6 +3,9 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const passport = require("passport");
 const axios = require("axios");
+var fs = require("fs");
+const request = require("request");
+var i2b = require("imageurl-base64");
 
 //get user schema
 const User = require("../../models/User");
@@ -24,24 +27,28 @@ router.get("/test", (req, res) => res.json({ msg: "Dogs works!" }));
 // @route  /api/dogs/
 // @desc   Get all dogs
 // @access PRIVATE
-router.get("/", (req, res) => {
-  Dog.find()
-    // .then(handle404)
-    // .then(dogs => {
-    //   const dogsObjects = dogs
-    //     .map(dog => dog.toObject())
-    //     .sort((a, b) => (a.priority > b.priority ? -1 : 1));
-    //   const userDogs = [];
-    //   dogsObjects.forEach(dog => {
-    //     if (dog.owner.equals(req.user.id)) {
-    //       userDogs.push(dog);
-    //     }
-    //   });
-    //   return userDogs;
-    // })
-    .then(dogs => res.status(200).json(dogs))
-    .catch(err => res.status(404));
-});
+router.get(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    Dog.find()
+      .sort({ createdAt: -1 })
+      .then(dogs => {
+        //const dogsObjects = dogs.map(dog => dog.toObject());
+        //     .sort((a, b) => (a.priority > b.priority ? -1 : 1));
+        const userDogs = [];
+        dogs.forEach(dog => {
+          if (dog.owner.equals(req.user.id)) {
+            userDogs.push(dog);
+          }
+        });
+        console.log("*****userDogs*****", userDogs);
+        return userDogs;
+      })
+      .then(dogs => res.status(200).json(dogs))
+      .catch(err => res.status(404));
+  }
+);
 
 // @route  /api/dogs/dog/:id
 // @desc   Get individual dog info
@@ -62,6 +69,7 @@ router.post(
   (req, res) => {
     // pulls image from post request to server and sends post request to google API
     const image = req.body.imageUrl;
+    console.log("***** Image URL *****", image);
     var predictions = [];
     axios({
       method: "post",
@@ -77,12 +85,12 @@ router.post(
           {
             image: {
               source: {
-                imageUri: req.body.imageUrl
+                imageUri: "gs://know-your-dog-2/" + req.body.imageUrl
               }
             },
             features: [
               {
-                type: "WEB_DETECTION",
+                type: "LABEL_DETECTION",
                 maxResults: 10
               }
             ]
@@ -91,8 +99,8 @@ router.post(
       }
     })
       .then(function(response) {
-        var webEntities = response.data.responses[0].webDetection.webEntities;
-        console.log(webEntities);
+        var webEntities = response.data.responses[0].labelAnnotations;
+        console.log(response.data.responses[0]);
         predictions = webEntities.map(entity => {
           return entity.description;
         });
@@ -102,10 +110,6 @@ router.post(
           probability: entity.score
         }));
         console.log("descripProbMap", descripProbMap);
-
-        //res.status(200).json({ dog: "dog" });
-
-        //res.status(200).json({ dog: newDog })
 
         // Check if array of label objects contains any descriptions with the value dog
         const isDog = function() {

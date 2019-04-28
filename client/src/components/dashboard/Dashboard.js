@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button } from "react-bootstrap";
+import { Button, FormControl, Card } from "react-bootstrap";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
@@ -7,14 +7,31 @@ import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { uploadFile } from "../../actions/imageActions";
 import Spinner from "../common/Spinner";
+import isEmpty from "../../validation/is-empty";
+import { store } from "../../store";
+import DogGraph from "./DogGraph";
 
 class Dashboard extends Component {
-  componentDidMount() {}
   constructor(props) {
     super(props);
     this.state = {
-      selectedFile: null
+      selectedFile: null,
+      graphLabels: [],
+      graphData: [],
+      image: null
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps);
+    let res = nextProps.dog.dog;
+    console.log(nextProps.dog.dog.id);
+
+    this.setState({
+      image: nextProps.dog.dog.image,
+      graphLabels: nextProps.dog.dog.breed,
+      graphData: nextProps.dog.dog.probability
+    });
   }
 
   fileUploadHandler = event => {
@@ -29,26 +46,43 @@ class Dashboard extends Component {
     });
   };
 
+  handleChange() {
+    // and whenever the store state changes, it re-renders.
+    this.forceUpdate();
+  }
+
   render() {
     const { user } = this.props.auth;
+    const { dog } = this.props;
     let dashboardContent;
+    let dogContent;
 
-    // user logged in but has no images
-    // dashboardContent = (
-    //   <div>
-    //     <p className="lead text-muted">Welcome {user.name}</p>
-    //     <p>You have not any images yet</p>
-    //     <Link to="/upload" className="btn btn-lg btn-info">
-    //       Upload Image
-    //     </Link>
-    //   </div>
-    // );
+    dogContent = (
+      <div>
+        <p> Breed {this.state.graphLabels} </p>
+        <p> Probability {this.state.graphData} </p>
+        <img src={this.state.image} alt="Dog image" />
+      </div>
+    );
+
+    // dogContent = <DogItem key={this._id} dog={this.state.dog} />;
+
+    //user logged in but has no images
+    dashboardContent = (
+      <div>
+        <p> Welcome {user.name} </p>
+      </div>
+    );
 
     return (
       <div id="container">
         {dashboardContent}
         <h1>Image Processing</h1>
-        <input type="file" name="myImage" onChange={this.fileSelectedHandler} />
+        <label className="file">
+          <input type="file" id="file" onChange={this.fileSelectedHandler} />
+          <span className="file-custom" />
+        </label>
+        <br />
         <Button
           type="submit"
           variant="secondary"
@@ -56,6 +90,28 @@ class Dashboard extends Component {
         >
           Process
         </Button>
+        {this.state.image === null ? (
+          <Spinner />
+        ) : (
+          <Card className="dog-card">
+            <Card.Body>
+              <Card.Img
+                top
+                width="100%"
+                src={
+                  "https://storage.cloud.google.com/know-your-dog-2/" +
+                  this.state.image
+                }
+                alt="dog"
+                className="img-responsive"
+              />
+              <DogGraph
+                graphLabels={this.state.graphLabels}
+                graphData={this.state.graphData}
+              />
+            </Card.Body>
+          </Card>
+        )}
       </div>
     );
   }
@@ -69,7 +125,8 @@ Dashboard.propTypes = {
 
 const mapStateToProps = state => ({
   auth: state.auth,
-  errors: state.errors
+  errors: state.errors,
+  dog: state.dog
 });
 
 export default connect(

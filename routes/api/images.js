@@ -1,55 +1,64 @@
+const process = require("process");
+const format = require("util").format;
 const express = require("express");
-const router = express.Router();
-const multer = require("multer");
+const Multer = require("multer");
+//const mime = require("mime-types");
 
-var storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, "./uploads/");
-  },
-  filename: function(req, file, cb) {
-    console.log(file);
-    cb(null, file.originalname);
+// By default, the client will authenticate using the service account file
+// specified by the GOOGLE_APPLICATION_CREDENTIALS environment variable and use
+// the project specified by the GOOGLE_CLOUD_PROJECT environment variable. See
+// https://github.com/GoogleCloudPlatform/google-cloud-node/blob/master/docs/authentication.md
+// These environment variables are set automatically on Google App Engine
+const { Storage } = require("@google-cloud/storage");
+
+// Instantiate a storage client
+const storage = new Storage({
+  projectId: "know-your-dog-2",
+  keyFilename: "know-your-dog-2-d9d16cd88abd.json"
+});
+
+const router = express.Router();
+
+module.exports = router;
+
+// Multer is required to process file uploads and make them available via
+// req.files.
+const multer = Multer({
+  storage: Multer.MemoryStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // no larger than 5mb, you can change as needed.
   }
 });
 
-// @route  /api/images/test
-// @desc   Tests user route
-// @access PUBLIC
-router.get("/test", (req, res) => res.json({ msg: "Images works!" }));
+// A bucket is a container for objects (files).
+var bucket = storage.bucket("know-your-dog-2");
 
-router.get("/", (req, res) => res.json({ msg: "Get all images works!" }));
+// Process the file upload and upload to Google Cloud Storage.
+router.post("/upload", multer.single("image"), function(req, res, next) {
+  const gcsname = Date.now() + req.file.originalname;
+  const file = bucket.file(gcsname);
 
-var upload = multer({ storage: storage }).single("image");
-
-router.post("/upload", (req, res) => {
-  upload(req, res, function(err) {
-    if (err) {
-      return res.send("Error Uploading: " + err);
+  const stream = file.createWriteStream({
+    metadata: {
+      contentType: req.file.mimetype
     }
-
-    const cloudinary = require("cloudinary").v2;
-    cloudinary.config({
-      cloud_name: "dowz0jbzx",
-      api_key: "455718854117881",
-      api_secret: "93J7yX210tphjClZzppH7-zGLWU"
-    });
-
-    const path = req.file.path;
-    const uniqueFilename = new Date().toISOString();
-
-    cloudinary.uploader.upload(
-      path,
-      { public_id: `blog/${uniqueFilename}`, tags: `blog` }, // directory and tags are optional
-      function(err, image) {
-        if (err) return res.send(err);
-        // remove file from server
-        const fs = require("fs");
-        fs.unlinkSync(path);
-        // return image details
-        res.json(image);
-      }
-    );
   });
+
+  stream.on("error", err => {
+    req.file.cloudStorageError = err;
+    console.log(err);
+    res.json({ success: false, msg: "Images not uploaded", urls: "" });
+  });
+
+  stream.on("finish", () => {
+    req.file.cloudStorageObject = gcsname;
+    req.file.cloudStoragePublicUrl = getPublicUrl(gcsname);
+    res.json({ url: req.file.cloudStoragePublicUrl, file: gcsname });
+  });
+
+  stream.end(req.file.buffer);
 });
 
-module.exports = router;
+function getPublicUrl(filename) {
+  return `https://storage.cloud.google.com/know-your-dog-2/${filename}`;
+}
