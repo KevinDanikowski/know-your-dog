@@ -16,11 +16,11 @@ Building a full stack application involves setting up a database along with work
 •	Open a command line environment; it could be Windows’ Command Prompt or Terminal on MacOS. VSCode has an integrated terminal inside and can be activated by pressing CTRL+ ['] keys.
 •	Navigate to a location where you want to create your project. Enter this command and press enter:
 
-	`mkdir know-your-dog`
+	mkdir know-your-dog
 	
 •	It will create a new folder with the given name. Then navigate into newly created folder:
 
-	`cd know-your-dog`
+	cd know-your-dog
   
 #### Initialize Package
 
@@ -33,11 +33,15 @@ To initialize the project:
 
 Ask npm to install dependencies we need for the production build of our project. Do this by executing the following command:
 
-`npm install --save express mongoose body-parser bcryptjs cors jsonwebtoken @google-cloud/storage multer passport passport-jwt request validator`
+```
+npm install --save express mongoose body-parser bcryptjs cors jsonwebtoken @google-cloud/storage multer passport passport-jwt request validator
+```
 
 Just use nodemon instead of node to run your code, and now your process will automatically restart when your code changes. To install, get node.js, then from your terminal run:
 
-`npm install -D –-save nodemon`
+```
+npm install -D –-save nodemon
+```
 
 ### SETUP CLIENT
 
