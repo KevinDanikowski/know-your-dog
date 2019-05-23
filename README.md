@@ -15,7 +15,9 @@ Building a full stack application involves setting up a database along with work
 #### Create a Folder
 •	Open a command line environment; it could be Windows’ Command Prompt or Terminal on MacOS. VSCode has an integrated terminal inside and can be activated by pressing CTRL+ ['] keys.
 •	Navigate to a location where you want to create your project. Enter this command and press enter:
-	mkdir know-your-dog
+
+	`mkdir know-your-dog`
+	
 •	It will create a new folder with the given name. Then navigate into newly created folder:
 	cd know-your-dog
   
