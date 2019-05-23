@@ -19,58 +19,63 @@ Building a full stack application involves setting up a database along with work
 	`mkdir know-your-dog`
 	
 •	It will create a new folder with the given name. Then navigate into newly created folder:
-	cd know-your-dog
+
+	`cd know-your-dog`
   
 #### Initialize Package
 
 We are creating our project as a new Node.js module, so we need to have a package.json file. At its simplest, it can be described as a manifest for our project, holding important information about what is our project’s name, who is creating this, what’s it about, or some more information about what are the packages our project going to be built with.
 To initialize the project:
-npm init -y
+
+`npm init -y`
 
 #### Install Dependencies
 
 Ask npm to install dependencies we need for the production build of our project. Do this by executing the following command:
-npm install --save express mongoose body-parser bcryptjs cors jsonwebtoken @google-cloud/storage multer passport passport-jwt request validator
+
+`npm install --save express mongoose body-parser bcryptjs cors jsonwebtoken @google-cloud/storage multer passport passport-jwt request validator`
+
 Just use nodemon instead of node to run your code, and now your process will automatically restart when your code changes. To install, get node.js, then from your terminal run:
-npm install -D –-save nodemon
+
+`npm install -D –-save nodemon`
 
 ### SETUP CLIENT
 
 Use create-react-app to bootstrap the front end.
 
-npm i -g create-react-app
+`npm i -g create-react-app`
 
 Create the react app with create-react-app.
 
-create-react-app client && cd client 
+`create-react-app client && cd client `
 
 We will also need Axios in order to make get/post requests with AJAX.
 
-npm i --save axios
+`npm i --save axios`
 
 Currently, chart.js version 2 is the version that works with React more seamlessly. To get Started you can simply install react-chartjs-2 by typing the npm command below.
 
-npm install --save react-chartjs
+`npm install --save react-chartjs`
 
 Install router dom, redux and bootstrap for react. 
 
-npm i --save react-router-dom react-redux react-bootstrap
+`npm i --save react-router-dom react-redux react-bootstrap`
 
 ### SETUP MONGODB DATABASE
 
 First we need to make sure that MongoDB is installed on your system. On MacOS this task can be completed by using the following command:
 
-$ brew install mongodb
+`$ brew install mongodb`
 
 Having installed MongoDB on your system you need to create a data directory, which is used by MongoDB:
 
-$ mkdir -p /data/db
+`$ mkdir -p /data/db`
 
 Before running mongod for the first time, ensure that the user account running mongod has read and write permissions for the directory.
 
 Now we’re ready to start up MongoDB by executing the following command:
 
-$ mongod
+`$ mongod`
 
 #### Creating a New MongoDB Database
 
