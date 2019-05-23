@@ -27,7 +27,9 @@ Building a full stack application involves setting up a database along with work
 We are creating our project as a new Node.js module, so we need to have a package.json file. At its simplest, it can be described as a manifest for our project, holding important information about what is our project’s name, who is creating this, what’s it about, or some more information about what are the packages our project going to be built with.
 To initialize the project:
 
-`npm init -y`
+```
+npm init -y
+```
 
 #### Install Dependencies
 
@@ -47,45 +49,63 @@ npm install -D –-save nodemon
 
 Use create-react-app to bootstrap the front end.
 
-`npm i -g create-react-app`
+```
+npm i -g create-react-app
+```
 
 Create the react app with create-react-app.
 
-`create-react-app client && cd client `
+```
+create-react-app client && cd client 
+```
 
 We will also need Axios in order to make get/post requests with AJAX.
 
-`npm i --save axios`
+```
+npm i --save axios
+```
 
 Currently, chart.js version 2 is the version that works with React more seamlessly. To get Started you can simply install react-chartjs-2 by typing the npm command below.
 
-`npm install --save react-chartjs`
+```
+npm install --save react-chartjs
+```
 
 Install router dom, redux and bootstrap for react. 
 
-`npm i --save react-router-dom react-redux react-bootstrap`
+```
+npm i --save react-router-dom react-redux react-bootstrap
+```
 
 ### SETUP MONGODB DATABASE
 
 First we need to make sure that MongoDB is installed on your system. On MacOS this task can be completed by using the following command:
 
-`$ brew install mongodb`
+```
+$ brew install mongodb
+```
 
 Having installed MongoDB on your system you need to create a data directory, which is used by MongoDB:
 
-`$ mkdir -p /data/db`
+```
+$ mkdir -p /data/db
+```
 
 Before running mongod for the first time, ensure that the user account running mongod has read and write permissions for the directory.
 
 Now we’re ready to start up MongoDB by executing the following command:
 
-`$ mongod`
+```
+$ mongod
+```
 
 #### Creating a New MongoDB Database
 
 The next step is to create the MongoDB database instance. Therefore, we are connecting to the database server by using the MongoDB client on the command line:
 
+```
 $ mongo
+```
 
 Once the client is started, it prompts you to enter database commands. By using the following command, we are creating a new database with the name todos:
 
@@ -93,15 +113,19 @@ use todos
 
 In your config folder, you can set up mongoURI using:
 
+```
 mongodb+srv://<dbuser>:<dbpassword>@ds159993.mongodb.net/users
+```
   
 Replace <dbuser> and <dbpassword> with the database user credentials you just created.
 Drop your URI into the keys.js file in the config directory. 
-  
+
+```
 module.exports = {
  mongoURI: "YOUR_MONGO_URI_HERE",
  secretOrKey: "secret"
 };
+```
 
 ### GOOGLE CLOUD STORAGE
 
