@@ -122,7 +122,28 @@ Create an API Key
 
 In the drop-down menu, select API key.
 
+## MongoDB Schema
 
+### User Schema
+
+![MongoDB_userschema](MongoDB_userschema.png)
+
+### Dog Schema
+
+![MongoDB_DogSchema](MongoDB_DogSchema.png)
+
+## Application Workflow
+
+![Application Workflow](Application_workflow.png)
+
+## Screenshots
+
+![Screenshot_1](Screenshot_1.png)
+![Screenshot_2](Screenshot_2.png)
+![Screenshot_3](Screenshot_3.png)
+![Screenshot_4](Screenshot_4.png)
+![Screenshot_5](Screenshot_5.png)
+![Screenshot_6](Screenshot_6.png)
 
 
 
